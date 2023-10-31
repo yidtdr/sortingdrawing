@@ -320,6 +320,9 @@
     <ClInclude Include="SFML\Window.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Arrays.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SFML\Audio\SoundFileFactory.inl">

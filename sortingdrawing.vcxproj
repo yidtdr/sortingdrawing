@@ -136,6 +136,7 @@
     <ClCompile Include="sortingdrawing.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Arrays.hpp" />
     <ClInclude Include="SFML\Audio.hpp" />
     <ClInclude Include="SFML\Audio\AlResource.hpp" />
     <ClInclude Include="SFML\Audio\Export.hpp" />
