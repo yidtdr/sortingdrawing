@@ -4,6 +4,7 @@
 #define PADDING 5
 #define NUM 100
 #include <SFML/Graphics.hpp>
+#include <thread>
 #include <iostream>
 using namespace sf;
 
@@ -91,10 +92,8 @@ void SortArray(rct* r, RectangleShape* buffrect, RenderWindow* window)
 			if (r[i].getSize().y < r[j].getSize().y)
 			{
 				elSwap(&r[i], &r[j]);
-				window->clear();
-				drawArray(r, buffrect, window);
-				window->display();
 			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 	}
 }
