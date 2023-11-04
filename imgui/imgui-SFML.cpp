@@ -156,7 +156,7 @@ void initDefaultJoystickMapping();
 // Returns first id of connected joystick
 unsigned int getConnectedJoystickId();
 
-void updateJoystickActionState(ImGuiIO& io, ImGuiNavInput_ action);
+//void updateJoystickActionState(ImGuiIO& io, ImGuiNavInput_ action);
 void updateJoystickDPadState(ImGuiIO& io);
 void updateJoystickLStickState(ImGuiIO& io);
 
@@ -409,16 +409,16 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
 
     // gamepad navigation
     if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) && s_joystickId != NULL_JOYSTICK_ID) {
-        updateJoystickActionState(io, ImGuiNavInput_Activate);
-        updateJoystickActionState(io, ImGuiNavInput_Cancel);
-        updateJoystickActionState(io, ImGuiNavInput_Input);
-        updateJoystickActionState(io, ImGuiNavInput_Menu);
+        //updateJoystickActionState(io, ImGuiNavInput_Activate);
+        //updateJoystickActionState(io, ImGuiNavInput_Cancel);
+        //updateJoystickActionState(io, ImGuiNavInput_Input);
+       // /*updateJoystickActionState(io, ImGuiNavInput_Menu);
 
-        updateJoystickActionState(io, ImGuiNavInput_FocusPrev);
-        updateJoystickActionState(io, ImGuiNavInput_FocusNext);
+       // updateJoystickActionState(io, ImGuiNavInput_FocusPrev);
+       // updateJoystickActionState(io, ImGuiNavInput_FocusNext);
 
-        updateJoystickActionState(io, ImGuiNavInput_TweakSlow);
-        updateJoystickActionState(io, ImGuiNavInput_TweakFast);
+       // updateJoystickActionState(io, ImGuiNavInput_TweakSlow);
+       //*/ updateJoystickActionState(io, ImGuiNavInput_TweakFast);
 
         updateJoystickDPadState(io);
         updateJoystickLStickState(io);
@@ -820,10 +820,10 @@ void initDefaultJoystickMapping() {
     ImGui::SFML::SetJoytickLStickThreshold(5.f);
 }
 
-void updateJoystickActionState(ImGuiIO& io, ImGuiNavInput_ action) {
-    bool isPressed = sf::Joystick::isButtonPressed(s_joystickId, s_joystickMapping[action]);
-    io.NavInputs[action] = isPressed ? 1.0f : 0.0f;
-}
+//void updateJoystickActionState(ImGuiIO& io, ImGuiNavInput_ action) {
+//    bool isPressed = sf::Joystick::isButtonPressed(s_joystickId, s_joystickMapping[action]);
+//    io.NavInputs[action] = isPressed ? 1.0f : 0.0f;
+//}
 
 void updateJoystickDPadState(ImGuiIO& io) {
     float dpadXPos = sf::Joystick::getAxisPosition(s_joystickId, s_dPadInfo.xAxis);

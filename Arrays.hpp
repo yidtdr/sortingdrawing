@@ -1,11 +1,13 @@
 #define BASE_Y = 500.f
 #define SCREENSIZE 1920
 #define SCREENHEIGHT 1080
-#define PADDING 5
-#define NUM 100
+#define PADDING 2
+#define NUM 300
 #include <SFML/Graphics.hpp>
 #include <thread>
 #include <iostream>
+#include <chrono>
+#include "globals.h"
 using namespace sf;
 
 class rct {
@@ -85,6 +87,11 @@ void drawArray(rct* r, RectangleShape* buffrect, RenderWindow* window)
 
 void SortArray(rct* r, RectangleShape* buffrect, RenderWindow* window)
 {
+
+	globals::sortingTime = 0;
+	auto start = std::chrono::high_resolution_clock::now();
+	auto finish = std::chrono::high_resolution_clock::now();
+
 	for (int i = 0; i < NUM - 1; i++)
 	{
 		for (int j = i + 1; j < NUM; j++)
@@ -93,7 +100,14 @@ void SortArray(rct* r, RectangleShape* buffrect, RenderWindow* window)
 			{
 				elSwap(&r[i], &r[j]);
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			finish = std::chrono::high_resolution_clock::now();
+			globals::sortingTime += std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count();
+			if (globals::programState != STATE_SORTING)
+			{
+				return;
+			}
+			std::this_thread::sleep_for(std::chrono::nanoseconds(globals::sleepTime));
+			start = std::chrono::high_resolution_clock::now();
 		}
 	}
 }
