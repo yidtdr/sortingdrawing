@@ -10,13 +10,15 @@
 #include "globals.h"
 using namespace sf;
 
+Color ColorMap[3] = { Color(0, 255, 0), Color(255,0,0), Color(0,0,255)};
+
 class rct {
 private:
 	float x;
 	float y;
 	float width;
 	float height;
-	int active;
+	int active = 0;
 public:
 	void setAttributes(float newx, float newy, float newwidth, float newheight)
 	{
@@ -77,7 +79,7 @@ void drawArray(rct* r, RectangleShape* buffrect, RenderWindow* window)
 {
 	for (int i = 0; i < NUM; i++)
 	{
-		buffrect->setFillColor(Color(0, 255, 0));
+		buffrect->setFillColor(ColorMap[r[i].getActive()]);
 
 		buffrect->setPosition(Vector2f(r[i].getPos().x, 1080 - r[i].getSize().y));
 		buffrect->setSize(r[i].getSize());
@@ -94,8 +96,10 @@ void SortArray(rct* r, RectangleShape* buffrect, RenderWindow* window)
 
 	for (int i = 0; i < NUM - 1; i++)
 	{
+		r[i].setActive(1);
 		for (int j = i + 1; j < NUM; j++)
 		{
+			r[j].setActive(2);
 			if (r[i].getSize().y < r[j].getSize().y)
 			{
 				elSwap(&r[i], &r[j]);
@@ -108,6 +112,8 @@ void SortArray(rct* r, RectangleShape* buffrect, RenderWindow* window)
 			}
 			std::this_thread::sleep_for(std::chrono::nanoseconds(globals::sleepTime));
 			start = std::chrono::high_resolution_clock::now();
+			r[j].setActive(0);
 		}
+		r[i].setActive(0);
 	}
 }

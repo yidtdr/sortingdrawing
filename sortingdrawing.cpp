@@ -5,18 +5,10 @@
 #include <Windows.h>
 #include <thread>
 #include "globals.h"
+#include "imApi.hpp"
 
 #define NUM 300
 
-/*        for (int i = 0; i < NUM; i++)
-        {
-            shuffleArray(r);
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-
-        SortArray(r, buffrect, window);
-*/
 
 using namespace sf;
 
@@ -53,13 +45,13 @@ void updateState(rct* r, RectangleShape* buffrect, RenderWindow* window)
 int main()
 {
     RenderWindow window(VideoMode(), "ArraySorting", Style::Fullscreen);
-
+    int speed = 50;
     RectangleShape buffrect;
     ImGui::SFML::Init(window);
 
     rct* r = initArray(NUM);
 
-    window.setFramerateLimit(120);
+    window.setFramerateLimit(50);
 
     window.clear();
 
@@ -73,6 +65,12 @@ int main()
     std::thread update(updateState, r, &buffrect, &window);
 
     Clock Deltaclock;
+
+    imapi::SetupImGuiStyle();
+    ImGuiStyle& style = ImGui::GetStyle();
+
+    int buttonwidth = (350 - (style.IndentSpacing + style.ItemSpacing.x));
+    int buttonwidth2 = (350 - (style.IndentSpacing + style.ItemSpacing.x + style.ItemSpacing.x)) / 2;
 
     while (window.isOpen())
     {
@@ -89,31 +87,38 @@ int main()
         ImGui::SetNextWindowSize(ImVec2(350, 400));
         ImGui::Begin("Control Panel", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
         ImGui::SameLine();
-        if (ImGui::Button("Shuffle", ImVec2(155, 45)))
-        {
-            globals::programState = STATE_SHUFFLING;
-        }
-        ImGui::SameLine();
         if (globals::programState != STATE_SORTING)
         {
-            if (ImGui::Button("Sort", ImVec2(155, 45)))
+            if (ImGui::Button("Shuffle", ImVec2(buttonwidth2, 45)))
+            {
+                globals::programState = STATE_SHUFFLING;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Sort", ImVec2(buttonwidth2, 45)))
             {
                 globals::programState = STATE_SORTING;
             }
         }
         else
         {
-            if (ImGui::Button("Stop sorting...", ImVec2(155, 45)))
+            if (ImGui::Button("Stop sorting...", ImVec2(buttonwidth, 45)))
             {
                 globals::programState = STATE_WAITING;
             }
         }
         ImGui::Separator();
-        ImGui::InputInt("Sorting speed", &globals::sleepTime, 1, 7);
-        if (globals::sleepTime > 499)
-            globals::sleepTime = 500;
-        if (globals::sleepTime < 0)
-            globals::sleepTime = 0;
+        ImGui::SliderInt("Sorting speed", &speed, 1, 100);
+        ImGui::SliderInt("Shuffle iter.", &globals::shuffleDepth, 1, 1000);
+        //if (speed > 100)
+        //    speed = 100;
+        //if (speed < 1)
+        //    speed = 1;
+
+        // 1 = 100 000 in sleeptime
+        // 100 = 1 in sleeptime
+
+        globals::sleepTime = (100 / speed) * (100 / speed) * (100 / speed);
+
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));

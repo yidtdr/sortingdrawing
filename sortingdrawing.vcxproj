@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClInclude Include="Arrays.hpp" />
     <ClInclude Include="globals.h" />
+    <ClInclude Include="imApi.hpp" />
     <ClInclude Include="imgui\imconfig-SFML.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui-SFML.h" />
