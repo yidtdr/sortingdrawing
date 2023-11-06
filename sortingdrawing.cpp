@@ -19,7 +19,7 @@ void updateState(rct* r, RectangleShape* buffrect, RenderWindow* window)
         {
             case STATE_SHUFFLING:
             {
-                for (int i = 0; i < NUM * globals::shuffleDepth; i++)
+                for (int i = 0; i < NUM * 100 * globals::shuffleDepth; i++)
                 {
                     shuffleArray(r);
                 }
@@ -28,7 +28,7 @@ void updateState(rct* r, RectangleShape* buffrect, RenderWindow* window)
             }
             case STATE_SORTING:
             {
-                SortArray(r, buffrect, window);
+                SortArray(r);
                 globals::programState = STATE_WAITING;
                 break;
             }
@@ -101,12 +101,18 @@ int main()
         }
         else
         {
-            if (ImGui::Button("Stop sorting...", ImVec2(buttonwidth, 45)))
-            {
-                globals::programState = STATE_WAITING;
+            if (globals::sortAlg == 0) {
+                if (ImGui::Button("Stop sorting", ImVec2(buttonwidth, 45)))
+                {
+                    globals::programState = STATE_WAITING;
+                }
+            }
+            if (globals::sortAlg == 1) {
+                ImGui::Text("Currently sorting...");
             }
         }
         ImGui::Separator();
+        ImGui::ListBox("Sorting\nalgoritm", &globals::sortAlg, globals::sortingAloritmsList, 3, 2);
         ImGui::SliderInt("Sorting speed", &speed, 1, 100);
         ImGui::SliderInt("Shuffle iter.", &globals::shuffleDepth, 1, 1000);
         //if (speed > 100)
@@ -122,12 +128,28 @@ int main()
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowSize(ImVec2(210, 40));
         ImGui::Begin("Statistics", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoInputs );
-        int seconds = globals::sortingTime / 1000000000;
-        int milliseconds = globals::sortingTime / 1000000 - seconds*1000;
-        int microseconds = globals::sortingTime / 1000 - milliseconds * 1000 - seconds * 1000000;
-        int nanoseconds = globals::sortingTime % 1000;
-        ImGui::Text("%i sec.%i millisec. %i microsec. %i nanosec.", seconds, milliseconds, microseconds, nanoseconds);
+        if (globals::sortAlg == 0) {
+            int seconds = globals::sortingTime / 1000000000;
+            int milliseconds = globals::sortingTime / 1000000 - seconds * 1000;
+            int microseconds = globals::sortingTime / 1000 - milliseconds * 1000 - seconds * 1000000;
+            int nanoseconds = globals::sortingTime % 1000;
+            ImGui::Text("%i s.%i ms. %i mcs. %i ns.", seconds, milliseconds, microseconds, nanoseconds);
+        }
+        if (globals::sortAlg == 1)
+        {
+            if (globals::programState == STATE_SORTING) {
+                ImGui::Text("Measuring time...");
+            }
+            else {
+                int seconds = globals::sortingTime / 1000000000;
+                int milliseconds = globals::sortingTime / 1000000 - seconds * 1000;
+                int microseconds = globals::sortingTime / 1000 - milliseconds * 1000 - seconds * 1000000;
+                int nanoseconds = globals::sortingTime % 1000;
+                ImGui::Text("%i s.%i ms. %i mcs. %i ns.", seconds, milliseconds, microseconds, nanoseconds);
+            }
+        }
         ImGui::End();
 
         window.clear();

@@ -26,6 +26,10 @@ public:
 		this->height = newheight;
 		this->width = newwidth;
 	}
+	void setSizeY(float newy)
+	{
+		this->height = newy;
+	}
 	Vector2f getSize()
 	{
 		return Vector2f(this->width, this->height);
@@ -87,33 +91,112 @@ void drawArray(rct* r, RectangleShape* buffrect, RenderWindow* window)
 	}
 }
 
-void SortArray(rct* r, RectangleShape* buffrect, RenderWindow* window)
+void Merge(rct* r, int start_1, int end_1, int start_2, int end_2)
 {
+	std::vector<float> h;
+	float h1, h2;
+	int start = start_1;
 
-	globals::sortingTime = 0;
-	auto start = std::chrono::high_resolution_clock::now();
-	auto finish = std::chrono::high_resolution_clock::now();
-
-	for (int i = 0; i < NUM - 1; i++)
+	while ((start_1 <= end_1) && (start_2 <= end_2))
 	{
-		r[i].setActive(1);
-		for (int j = i + 1; j < NUM; j++)
+		h1 = r[start_1].getSize().y;
+		h2 = r[start_2].getSize().y;
+		if (h1 > h2)
 		{
-			r[j].setActive(2);
-			if (r[i].getSize().y < r[j].getSize().y)
-			{
-				elSwap(&r[i], &r[j]);
-			}
-			finish = std::chrono::high_resolution_clock::now();
-			globals::sortingTime += std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count();
-			if (globals::programState != STATE_SORTING)
-			{
-				return;
-			}
-			std::this_thread::sleep_for(std::chrono::nanoseconds(globals::sleepTime));
-			start = std::chrono::high_resolution_clock::now();
-			r[j].setActive(0);
+			h.push_back(h1);
+		    start_1++;
 		}
-		r[i].setActive(0);
+		else
+		{
+			h.push_back(h2);
+			start_2++;
+		}
+	}
+
+	for (int i = start_1; i <= end_1; i++)
+	{
+		h.push_back(r[i].getSize().y);
+	}
+	for (int i = start_2; i <= end_2; i++)
+	{
+		h.push_back(r[i].getSize().y);
+	}
+
+	for (int i = 0; i < h.size(); i++)
+	{
+		r[start + i].setSizeY(h[i]);
+		auto start = std::chrono::high_resolution_clock::now();
+		std::this_thread::sleep_for(std::chrono::nanoseconds(globals::sleepTime));
+		auto finish = std::chrono::high_resolution_clock::now();
+		globals::sleeped += std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() + 200;
+	}
+}
+
+void MergeSort(rct* r, int start, int end)
+{
+	r[start].setActive(1);
+	r[end].setActive(2);
+	if ((start + 1) < end)
+	{
+		MergeSort(r, start, (start + end) / 2);
+		MergeSort(r, ((start + end) / 2) + 1, end);
+		Merge(r, start, (start + end) / 2, (start + end) / 2 + 1, end);
+		return;
+	}
+
+	if (r[start].getSize().y < r[end].getSize().y)
+	{
+		auto tstart = std::chrono::high_resolution_clock::now();
+		std::this_thread::sleep_for(std::chrono::nanoseconds(globals::sleepTime));
+		auto finish = std::chrono::high_resolution_clock::now();
+		globals::sleeped += std::chrono::duration_cast<std::chrono::nanoseconds>(finish - tstart).count() + 200;
+		elSwap(&r[start], &r[end]);
+	}
+	r[start].setActive(0);
+	r[end].setActive(0);
+	return;
+}
+
+void SortArray(rct* r)
+{
+	if (globals::sortAlg == 0)
+	{
+		globals::sortingTime = 0;
+		auto start = std::chrono::high_resolution_clock::now();
+		auto finish = std::chrono::high_resolution_clock::now();
+
+		for (int i = 0; i < NUM - 1; i++)
+		{
+			r[i].setActive(1);
+			for (int j = i + 1; j < NUM; j++)
+			{
+				r[j].setActive(2);
+				if (r[i].getSize().y < r[j].getSize().y)
+				{
+					elSwap(&r[i], &r[j]);
+				}
+				finish = std::chrono::high_resolution_clock::now();
+				globals::sortingTime += std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count();
+				if (globals::programState != STATE_SORTING)
+				{
+					return;
+				}
+				std::this_thread::sleep_for(std::chrono::nanoseconds(globals::sleepTime));
+				start = std::chrono::high_resolution_clock::now();
+				r[j].setActive(0);
+			}
+			r[i].setActive(0);
+		}
+		return;
+	}
+	if (globals::sortAlg == 1)
+	{
+		globals::sortingTime = 0;
+		globals::sleeped = 0;
+		auto start = std::chrono::high_resolution_clock::now();
+		MergeSort(r, 0, NUM - 1);
+		auto finish = std::chrono::high_resolution_clock::now();
+		globals::sortingTime = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() - globals::sleeped;
+		return;
 	}
 }

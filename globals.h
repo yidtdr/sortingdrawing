@@ -9,4 +9,9 @@ namespace globals {
 	int shuffleDepth = 1;
 	long long sortingTime;
 	int sleepTime = 5;
+	int sortAlg = 0;
+
+	long long sleeped = 0;
+
+	const char* sortingAloritmsList[3] = { "BUBBLE", "MERGE", "QUICK" };
 }
