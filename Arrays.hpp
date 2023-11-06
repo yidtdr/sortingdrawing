@@ -58,30 +58,33 @@ void elSwap(rct* sw1, rct* sw2)
 	sw2->setAttributes(sw2->getPos().x, sw2->getPos().y, sw2->getSize().x, buff);
 }
 
-rct* initArray(const int n)
+void sleepAndMeasure()
 {
-	rct r_Arr[NUM];
+	auto tstart = std::chrono::high_resolution_clock::now();
+	std::this_thread::sleep_for(std::chrono::nanoseconds(globals::sleepTime));
+	auto finish = std::chrono::high_resolution_clock::now();
+	globals::sleeped += std::chrono::duration_cast<std::chrono::nanoseconds>(finish - tstart).count();
+}
 
-	for (int i = 0; i < NUM; i++)
+void initArray(rct* r, int n)
+{
+	for (int i = 0; i < n; i++)
 	{
-		r_Arr[i].setAttributes((float)(SCREENSIZE * i / n + PADDING / 2), 0, (float)(SCREENSIZE / n - PADDING), (float)((i + 1) * (SCREENHEIGHT / NUM - 1)));
-		r_Arr[i].setActive(0);
+		r[i].setAttributes((float)(SCREENSIZE * i / n + PADDING / 2), 0, (float)(SCREENSIZE / n - PADDING), (float)((i + 1) * (SCREENHEIGHT / NUM - 1)));
+		r[i].setActive(0);
 	}
-	
-
-	return r_Arr;
 }
 
 rct* shuffleArray(rct* r)
 {
-	elSwap(&r[rand() % NUM], &r[rand() % NUM]);
+	elSwap(&r[rand() % globals::curArraySize], &r[rand() % globals::curArraySize]);
 
 	return r;	
 }
 
 void drawArray(rct* r, RectangleShape* buffrect, RenderWindow* window)
 {
-	for (int i = 0; i < NUM; i++)
+	for (int i = 0; i < globals::curArraySize; i++)
 	{
 		buffrect->setFillColor(ColorMap[r[i].getActive()]);
 
@@ -125,10 +128,7 @@ void Merge(rct* r, int start_1, int end_1, int start_2, int end_2)
 	for (int i = 0; i < h.size(); i++)
 	{
 		r[start + i].setSizeY(h[i]);
-		auto start = std::chrono::high_resolution_clock::now();
-		std::this_thread::sleep_for(std::chrono::nanoseconds(globals::sleepTime));
-		auto finish = std::chrono::high_resolution_clock::now();
-		globals::sleeped += std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() + 200;
+		sleepAndMeasure();
 	}
 }
 
@@ -146,15 +146,47 @@ void MergeSort(rct* r, int start, int end)
 
 	if (r[start].getSize().y < r[end].getSize().y)
 	{
-		auto tstart = std::chrono::high_resolution_clock::now();
-		std::this_thread::sleep_for(std::chrono::nanoseconds(globals::sleepTime));
-		auto finish = std::chrono::high_resolution_clock::now();
-		globals::sleeped += std::chrono::duration_cast<std::chrono::nanoseconds>(finish - tstart).count() + 200;
+		sleepAndMeasure();
 		elSwap(&r[start], &r[end]);
 	}
 	r[start].setActive(0);
 	r[end].setActive(0);
 	return;
+}
+
+void QuickSort(rct* r, int start, int end)
+{
+	sleepAndMeasure();
+	int left = start, right = end;
+	int piv = r[(right + left) / 2].getSize().y;
+	while (left <= right)
+	{
+		r[left].setActive(1);
+		r[right].setActive(2);
+		while (r[left].getSize().y > piv)
+		{
+			r[left].setActive(0);
+			left++;
+		}
+		while (r[right].getSize().y < piv)
+		{
+			r[right].setActive(0);
+			right--;
+		}
+		if (left <= right)
+		{
+			r[left].setActive(0);
+			r[right].setActive(0);
+			elSwap(&r[left++], &r[right--]);
+		}
+		sleepAndMeasure();
+		r[left].setActive(0);
+		r[right].setActive(0);
+	}
+	if (start < right)
+		QuickSort(r, start, right);
+	if (end > left)
+		QuickSort(r, left, end);
 }
 
 void SortArray(rct* r)
@@ -165,10 +197,10 @@ void SortArray(rct* r)
 		auto start = std::chrono::high_resolution_clock::now();
 		auto finish = std::chrono::high_resolution_clock::now();
 
-		for (int i = 0; i < NUM - 1; i++)
+		for (int i = 0; i < globals::curArraySize - 1; i++)
 		{
 			r[i].setActive(1);
-			for (int j = i + 1; j < NUM; j++)
+			for (int j = i + 1; j < globals::curArraySize; j++)
 			{
 				r[j].setActive(2);
 				if (r[i].getSize().y < r[j].getSize().y)
@@ -194,7 +226,17 @@ void SortArray(rct* r)
 		globals::sortingTime = 0;
 		globals::sleeped = 0;
 		auto start = std::chrono::high_resolution_clock::now();
-		MergeSort(r, 0, NUM - 1);
+		MergeSort(r, 0, globals::curArraySize - 1);
+		auto finish = std::chrono::high_resolution_clock::now();
+		globals::sortingTime = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() - globals::sleeped;
+		return;
+	}
+	if (globals::sortAlg == 2)
+	{
+		globals::sortingTime = 0;
+		globals::sleeped = 0;
+		auto start = std::chrono::high_resolution_clock::now();
+		QuickSort(r, 0, globals::curArraySize - 1);
 		auto finish = std::chrono::high_resolution_clock::now();
 		globals::sortingTime = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() - globals::sleeped;
 		return;

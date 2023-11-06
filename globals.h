@@ -10,8 +10,8 @@ namespace globals {
 	long long sortingTime;
 	int sleepTime = 5;
 	int sortAlg = 0;
-
+	int curArraySize = 300;
 	long long sleeped = 0;
 
-	const char* sortingAloritmsList[3] = { "BUBBLE", "MERGE", "QUICK" };
+	const char* sortingAloritmsList[3] = { "SELECTION", "MERGE", "QUICK" };
 }

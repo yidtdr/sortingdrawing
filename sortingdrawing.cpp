@@ -48,9 +48,10 @@ int main()
     int speed = 50;
     RectangleShape buffrect;
     ImGui::SFML::Init(window);
+    int newSize = NUM;
 
-    rct* r = initArray(NUM);
-
+    rct* r = new rct[NUM];
+    initArray(r, NUM);
     window.setFramerateLimit(50);
 
     window.clear();
@@ -115,13 +116,13 @@ int main()
         ImGui::ListBox("Sorting\nalgoritm", &globals::sortAlg, globals::sortingAloritmsList, 3, 2);
         ImGui::SliderInt("Sorting speed", &speed, 1, 100);
         ImGui::SliderInt("Shuffle iter.", &globals::shuffleDepth, 1, 1000);
-        //if (speed > 100)
-        //    speed = 100;
-        //if (speed < 1)
-        //    speed = 1;
-
-        // 1 = 100 000 in sleeptime
-        // 100 = 1 in sleeptime
+        if (globals::programState == STATE_WAITING)
+            ImGui::SliderInt("Array Size", &newSize, 4, 300);
+        if (newSize != globals::curArraySize)
+        {
+            globals::curArraySize = newSize;
+            initArray(r, globals::curArraySize);
+        }
 
         globals::sleepTime = (100 / speed) * (100 / speed) * (100 / speed);
 
@@ -137,7 +138,7 @@ int main()
             int nanoseconds = globals::sortingTime % 1000;
             ImGui::Text("%i s.%i ms. %i mcs. %i ns.", seconds, milliseconds, microseconds, nanoseconds);
         }
-        if (globals::sortAlg == 1)
+        if ((globals::sortAlg == 1) || (globals::sortAlg == 2))
         {
             if (globals::programState == STATE_SORTING) {
                 ImGui::Text("Measuring time...");
